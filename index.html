@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOUR PAY before and after Project 2025</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input, button {
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+        }
+        .results-table {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .results-column {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 45%;
+        }
+        .highlight {
+            background-color: lightcoral;
+            padding: 5px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        h2 {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Calculate YOUR PAY Before and After Project 2025</h1>
+    <h3>This quote is directly from <a href="https://static.project2025.org/2025_MandateForLeadership_FULL.pdf">Project 2025</a></h3>
+    <i>"Specifically, employers and employees should be able to set a two- or four-week period over which to calculate overtime." (page 592)</i>
+
+    <h3>How does the calculator work?</h3>
+    <ul>
+
+    <li>For BEFORE Project 2025, overtime kicks in after 40 hours in a week (per the current <a href="https://www.dol.gov/agencies/whd/overtime">Fair Labor Standards Act</a>)</li>
+    <li>For AFTER Project 2025, it uses their proposed four-week period.  So OT only kicks in after 160 hours.  Let's not kid ourselves.  If your employer can use that law to use you, they will.</li></ul>
+
+    <h3>Think like a boss and Think of a Friend</h3>
+    <ul><li>To assess the full impact of Project 2025 on your pay, imagine your boss is an asshole (still with me?) and decides to change your schedule around to work as many hours as possible for as little OT-pay possible. </li>
+    <li>They could have you work 14 days of 12-hour shifts in a row, and only pay you 8 hours of overtime (compared to 88 hours of OT before Project 2025).</li> 
+    <li><b>Working 2-weeks on/2-weeks off is already standard in some industries.  Do you know someone working those hours for the overtime?  Anyone who depends on overtime at all?  You might want to let them know what they're voting for.</b></li>
+</ul>
+
+    <h3>Sources</h3>  
+    <ul><li>If you're not sure that Trump will actually implement Project 2025.  Here is Steve Bannon and John McEntee talking about how 
+they'll hit the ground running implementing Project 2025 if Trump's elected.  They were recruiting thousands of people over a year ago. 
+<a href="https://youtu.be/5ZA0iSTVqMc?t=428">Bannon/McEntee Project 2025 human resource gathering</a></li>
+<li><a href="https://www.25and.me/">Project 2025: Summarized by category</a></li>
+<li><a href="https://www.youtube.com/watch?v=0c3bhh8fqYs">Lowell Mill Girls Slogan</a></li>
+</ul>
+</br>
+
+    <form id="wageForm">
+        <label for="hourlyWage"><b>Hourly Wage ($):</b></label>
+        <input type="number" id="hourlyWage" step="0.25" value="7.25" required>
+        
+        <label for="week1"><b>Hours Worked - Week 1:</b></label>
+        <input type="number" id="week1" value="84" required>
+        
+        <label for="week2"><b>Hours Worked - Week 2:</b></label>
+        <input type="number" id="week2" value="84" required>
+        
+        <label for="week3"><b>Hours Worked - Week 3:</b></label>
+        <input type="number" id="week3" value="0" required>
+        
+        <label for="week4"><b>Hours Worked - Week 4:</b></label>
+        <input type="number" id="week4" value="0" required>
+        
+        <label for="overtimeMultiplier"><b>Overtime Multiplier:</b></label>
+        <input type="number" id="overtimeMultiplier" step="0.5" value="1.5">
+        
+        <button type="submit">Calculate</button>
+    </form>
+
+    <div id="results" class="results-table"></div>
+
+    <script>
+        document.getElementById('wageForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const hourlyWage = parseFloat(document.getElementById('hourlyWage').value);
+            const week1 = parseFloat(document.getElementById('week1').value);
+            const week2 = parseFloat(document.getElementById('week2').value);
+            const week3 = parseFloat(document.getElementById('week3').value);
+            const week4 = parseFloat(document.getElementById('week4').value);
+            const overtimeMultiplier = parseFloat(document.getElementById('overtimeMultiplier').value) || 1.5;
+
+            // Total hours worked in the month
+            const totalHoursWorked = week1 + week2 + week3 + week4;
+
+            // Calculate before Project 2025
+            const calculateBefore = (hours) => {
+                let regularHours = Math.min(hours, 40);
+                let overtimeHours = Math.max(0, hours - 40);
+                return {
+                    regularHours,
+                    overtimeHours,
+                    totalPay: (regularHours * hourlyWage) + (overtimeHours * hourlyWage * overtimeMultiplier)
+                };
+            };
+
+            const beforeResults = [
+                calculateBefore(week1),
+                calculateBefore(week2),
+                calculateBefore(week3),
+                calculateBefore(week4)
+            ];
+
+            const totalBefore = beforeResults.reduce((sum, week) => sum + week.totalPay, 0);
+
+            // Calculate after Project 2025
+            let regularHoursAfter = Math.min(totalHoursWorked, 160);
+            let overtimeHoursAfter = Math.max(0, totalHoursWorked - 160);
+            let totalAfter = (regularHoursAfter * hourlyWage) + (overtimeHoursAfter * hourlyWage * overtimeMultiplier);
+
+            // Calculate absolute amount lost and percentage based on the difference
+            let amountLost = totalBefore - totalAfter;
+            let percentageLost = totalBefore > 0 ? (amountLost / totalBefore) * 100 : 0;
+
+            // Display results
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `
+                <div class="results-column">
+                    <h2>Before Project 2025</h2>
+                    ${beforeResults.map((week, index) => `
+                        <p>Week ${index + 1}: Regular Hours: ${week.regularHours}, Overtime Hours: ${week.overtimeHours}, Total Pay: $${week.totalPay.toFixed(2)}</p>
+                    `).join('')}
+                    <p><strong>Total Pay: $${totalBefore.toFixed(2)}</strong></p>
+                </div>
+                <div class="results-column">
+                    <h2>After Project 2025</h2>
+                    <p>Regular Hours: ${regularHoursAfter}</p>
+                    <p>Overtime Hours: ${overtimeHoursAfter}</p>
+                    <p><strong>Total Pay: $${totalAfter.toFixed(2)}</strong></p>
+                </div>
+                <div class="results-column" style="width: 100%; margin-top: 20px;">
+                    <h2>Loss Comparison</h2>
+                    <p class="highlight">Dollars Lost: $${amountLost.toFixed(2)}</p>
+                    <p class="highlight">Percentage Lost: ${percentageLost.toFixed(2)}%</p>
+                </div>
+            `;
+        });
+    </script>
+</body>
+</html>
